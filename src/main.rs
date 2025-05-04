@@ -14,6 +14,9 @@ use embedded_graphics::{
     text::{Baseline, Text},
 };
 
+use blitty::{
+    embedded_render, BoundingBox, Command, DisplayList, Renderer, Rgb
+};
 
 use oled_async::{prelude::*, Builder};
 use {defmt_rtt as _, panic_probe as _};
@@ -21,6 +24,8 @@ use {defmt_rtt as _, panic_probe as _};
 bind_interrupts!(struct Irqs {
     I2C0_IRQ => InterruptHandler<embassy_rp::peripherals::I2C0>;
 });
+
+
 
 #[embassy_executor::main]
 async fn main(_spawner: Spawner) {
@@ -41,8 +46,62 @@ async fn main(_spawner: Spawner) {
         .with_rotation(crate::DisplayRotation::Rotate180)
         .connect(di);
 
-    let mut disp: GraphicsMode<_, _> = raw_disp.into();
+    let mut display: GraphicsMode<_, _> = raw_disp.into();
 
+    
+    display.init().await.unwrap();
+
+    
+    display.clear();
+    display.flush().await.unwrap();
+    
+    let mut renderer = embedded_render::EmbeddedRender::new(&mut display, 16);
+    
+    let mut commands = DisplayList::<3>::new();
+
+    
+    let bounds = BoundingBox::new( 16, 16, 64, 64);
+    let rgb = Rgb::new( 0, 64, 128 );
+
+    let rect = Command::new_rect(bounds, rgb);
+
+    commands.set(0, rect).unwrap();
+    
+    
+    let bounds = BoundingBox::new( 80, 80, 100, 100);
+    let rgb = Rgb::new( 0, 128, 64 );
+
+    let rect = Command::new_rect(bounds, rgb);
+
+    commands.set(2, rect).unwrap();
+
+    let mut bounds = BoundingBox::new( 32, 64, 70, 100);
+    let mut rgb = Rgb::new( 64, 64, 64 );
+
+    let rect = Command::new_rect(bounds.clone(), rgb.clone());
+
+    commands.set(1, rect).unwrap();
+    
+    
+    commands.draw(&mut renderer).unwrap();
+
+    renderer.get_display_mut().flush().await.unwrap();
+    
+    for i in 0..128 {
+        bounds.x1 += 1;
+        bounds.x2 += 1;
+
+        let rect = Command::new_rect(bounds.clone(), rgb.clone());
+
+        commands.update(1, rect).unwrap();
+
+        commands.draw(&mut renderer).unwrap();
+
+        renderer.get_display_mut().flush().await.unwrap();
+
+    }
+
+    /* 
     disp.init().await.unwrap();
     disp.clear();
     disp.flush().await.unwrap();
@@ -57,7 +116,7 @@ async fn main(_spawner: Spawner) {
         .unwrap();
 
     disp.flush().await.unwrap();
-
+    */
     
 
     loop {
