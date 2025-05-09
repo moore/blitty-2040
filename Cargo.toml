@@ -48,8 +48,8 @@ rp2040-hal = { version = "0.11", features = [
     "i2c-write-iter",
 ] }
 rp2040-boot2 = "0.3"
-#blitty = "0.1.1"
-blitty = { path = "../blitty" }
+blitty = "0.2.0"
+#blitty = { path = "../blitty" }
 
 
 # cargo build/run
