@@ -90,7 +90,7 @@ async fn main(_spawner: Spawner) {
     commands.set(2, rect).unwrap();
 
     let mut bounds = BoundingBox::new( 32, 64, 54, 76);
-    let mut rgb = Rgb::new( 64, 64, 64 );
+    let rgb = Rgb::new( 64, 64, 64 );
 
     let rect = Command::new_rect(bounds.clone(), rgb.clone());
 
@@ -102,7 +102,7 @@ async fn main(_spawner: Spawner) {
     //renderer.get_display_mut().flush().await.unwrap();
 
     loop {
-        for i in 0..128 {
+        for _ in 0..128 {
             bounds.x1 += 1;
             bounds.x2 += 1;
 
